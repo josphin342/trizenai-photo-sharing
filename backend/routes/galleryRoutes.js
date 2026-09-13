@@ -16,7 +16,7 @@ const { checkEventAccess } = require("../middleware/eventAccessMiddleware");
 
 const {
   protectGalleryAccess,
-} = require("../middleware/GalleryAccessMiddleware");
+} = require("../middleware/gallery-access-middleware");
 
 
 const router = express.Router();
