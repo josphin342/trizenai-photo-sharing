@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -5,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const Gallery = require("../models/Gallery");
 const Photo = require("../models/Photo");
 
+const { getS3SignedUrl } = require("../services/s3Service");
 
 const createGallery = async (req, res) => {
   try {
@@ -106,6 +108,107 @@ const createGallery = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Server error while creating gallery",
+    });
+  }
+};
+
+const updateGalleryPhotos = async (req, res) => {
+  try {
+    const { eventId, galleryId } = req.params;
+    const { selectedPhotos } = req.body;
+
+    if (!Array.isArray(selectedPhotos)) {
+      return res.status(400).json({
+        success: false,
+        message: "selectedPhotos must be an array",
+      });
+    }
+
+    if (selectedPhotos.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Select at least one photo",
+      });
+    }
+
+    const invalidPhotoIds = selectedPhotos.filter(
+      (photoId) =>
+        !mongoose.Types.ObjectId.isValid(photoId)
+    );
+
+    if (invalidPhotoIds.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "One or more photo IDs are invalid",
+      });
+    }
+
+    const gallery = await Gallery.findOne({
+      _id: galleryId,
+      event: eventId,
+      createdBy: req.user._id,
+    });
+
+    if (!gallery) {
+      return res.status(404).json({
+        success: false,
+        message: "Gallery not found",
+      });
+    }
+
+    // Published galleries are locked.
+    if (gallery.isPublished) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Published galleries cannot be modified",
+      });
+    }
+
+    const photos = await Photo.find({
+      _id: { $in: selectedPhotos },
+      event: eventId,
+    });
+
+    if (photos.length !== selectedPhotos.length) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "One or more selected photos do not belong to this event",
+      });
+    }
+
+    const allPhotosSelected = photos.every(
+      (photo) => photo.selected === true
+    );
+
+    if (!allPhotosSelected) {
+      return res.status(400).json({
+        success: false,
+        message:
+          "Only photos selected by the Admin can be added to the gallery",
+      });
+    }
+
+    gallery.selectedPhotos = selectedPhotos;
+
+    await gallery.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Gallery photos updated successfully",
+      gallery,
+    });
+  } catch (error) {
+    console.error(
+      "Update gallery photos error:",
+      error
+    );
+
+    return res.status(500).json({
+      success: false,
+      message:
+        "Server error while updating gallery photos",
     });
   }
 };
@@ -283,10 +386,13 @@ const getCustomerGallery = async (req, res) => {
     ) {
       return res.status(403).json({
         success: false,
-        message: "You are not authorized to access this gallery",
+        message:
+          "You are not authorized to access this gallery",
       });
     }
 
+    // Return only photos that belong to this gallery,
+    // belong to the same event, and are currently selected.
     const photos = await Photo.find({
       _id: { $in: gallery.selectedPhotos },
       event: gallery.event,
@@ -299,7 +405,10 @@ const getCustomerGallery = async (req, res) => {
       photos,
     });
   } catch (error) {
-    console.error("Customer gallery error:", error);
+    console.error(
+      "Customer gallery error:",
+      error
+    );
 
     return res.status(500).json({
       success: false,
@@ -378,6 +487,7 @@ const getCustomerPhoto = async (req, res) => {
 
 module.exports = {
   createGallery,
+  updateGalleryPhotos,
   getAdminGallery,
   publishGallery,
   verifyGalleryPin,

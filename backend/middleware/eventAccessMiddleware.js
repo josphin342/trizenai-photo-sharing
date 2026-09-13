@@ -5,7 +5,6 @@ const checkEventAccess = async (req, res, next) => {
   try {
     const { eventId } = req.params;
 
-    // Validate event ID before querying MongoDB
     if (!mongoose.Types.ObjectId.isValid(eventId)) {
       return res.status(400).json({
         success: false,
@@ -13,6 +12,8 @@ const checkEventAccess = async (req, res, next) => {
       });
     }
 
+    // Do NOT populate teamMembers before checking authorization.
+    // We need the raw ObjectIds for the comparison.
     const event = await Event.findById(eventId);
 
     if (!event) {
@@ -22,7 +23,6 @@ const checkEventAccess = async (req, res, next) => {
       });
     }
 
-    // Make sure authenticated user exists
     if (!req.user) {
       return res.status(401).json({
         success: false,
@@ -30,41 +30,32 @@ const checkEventAccess = async (req, res, next) => {
       });
     }
 
-    // ADMIN
-    // Admin can access only events created by them
     if (req.user.role === "ADMIN") {
       if (
         !event.createdBy ||
-        event.createdBy.toString() !==
-          req.user._id.toString()
+        event.createdBy.toString() !== req.user._id.toString()
       ) {
         return res.status(403).json({
           success: false,
-          message:
-            "You are not authorized to access this event",
+          message: "You are not authorized to access this event",
         });
       }
     }
 
-    // TEAM MEMBER
-    // Team Member can access only assigned events
     if (req.user.role === "TEAM_MEMBER") {
       const isAssigned = (event.teamMembers || []).some(
         (memberId) =>
-          memberId.toString() ===
-          req.user._id.toString()
+          memberId.toString() === req.user._id.toString()
       );
 
       if (!isAssigned) {
         return res.status(403).json({
           success: false,
-          message:
-            "You are not assigned to this event",
+          message: "You are not assigned to this event",
         });
       }
     }
 
-    // Unknown role
     if (
       req.user.role !== "ADMIN" &&
       req.user.role !== "TEAM_MEMBER"
@@ -75,7 +66,9 @@ const checkEventAccess = async (req, res, next) => {
       });
     }
 
-    // Attach event for controllers
+    // Populate only AFTER authorization succeeds.
+    await event.populate("teamMembers", "name email role");
+
     req.event = event;
 
     next();

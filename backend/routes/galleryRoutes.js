@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   createGallery,
+  updateGalleryPhotos,
   getAdminGallery,
   publishGallery,
   verifyGalleryPin,
@@ -37,6 +38,15 @@ router.post(
   authorizeRoles("ADMIN"),
   checkEventAccess,
   createGallery
+);
+
+// Update gallery photos
+router.patch(
+  "/:eventId/:galleryId/photos",
+  protect,
+  authorizeRoles("ADMIN"),
+  checkEventAccess,
+  updateGalleryPhotos
 );
 
 // Publish gallery

@@ -10,6 +10,7 @@ const path = require("path");
 
 const uploadPhotos = async (req, res) => {
   const uploadedKeys = [];
+  const createdPhotoIds = [];
 
   try {
     if (!req.files || req.files.length === 0) {
@@ -33,6 +34,7 @@ const uploadPhotos = async (req, res) => {
       });
 
       uploadedKeys.push(key);
+      
 
       const photo = await Photo.create({
         event: req.event._id,
@@ -42,6 +44,8 @@ const uploadPhotos = async (req, res) => {
         fileSize: file.size,
         mimeType: file.mimetype,
       });
+
+      createdPhotoIds.push(photo._id);
 
       photos.push(photo);
     }
@@ -54,6 +58,19 @@ const uploadPhotos = async (req, res) => {
     });
   } catch (error) {
     console.error("Photo upload error:", error);
+    
+   // Delete MongoDB Photo records created during this upload
+    for (const photoId of createdPhotoIds) {
+  try {
+    await Photo.findByIdAndDelete(photoId);
+  } catch (deleteError) {
+    console.error(
+      "Failed to clean up Photo database record:",
+      photoId,
+      deleteError
+    );
+  }
+}
 
     // Delete S3 objects if the database operation fails
     for (const key of uploadedKeys) {
