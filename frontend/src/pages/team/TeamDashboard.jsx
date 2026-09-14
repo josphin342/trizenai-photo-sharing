@@ -472,9 +472,11 @@ const TeamDashboard = () => {
                 </div>
               ) : photos.length === 0 ? (
                 <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-12 text-center">
-                  <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
-                    📷
-                  </div>
+                  <img
+                    src="/logo.svg"
+                    alt="TrizenAI Photos"
+                    className="h-10 w-10 rounded-xl"
+                  />
 
                   <p className="mt-4 font-medium text-slate-800">
                     No photos uploaded yet

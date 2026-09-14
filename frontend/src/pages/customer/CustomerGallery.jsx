@@ -196,9 +196,11 @@ const CustomerGallery = () => {
         {/* Empty gallery */}
         {photos.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-12 text-center shadow-sm">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl">
-              📷
-            </div>
+          <img
+             src="/logo.svg"
+             alt="TrizenAI Photos"
+             className="h-10 w-10 rounded-xl"
+           />
 
             <h2 className="mt-4 text-lg font-semibold text-slate-900">
               No Photos Available

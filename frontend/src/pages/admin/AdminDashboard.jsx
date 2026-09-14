@@ -219,9 +219,11 @@ const AdminDashboard = () => {
                 >
                   <div className="flex flex-1 flex-col p-6">
                     <div className="mb-5 flex items-start justify-between gap-4">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-xl">
-                        📷
-                      </div>
+                      <img
+                        src="/logo.svg"
+                        alt="TrizenAI Photos"
+                        className="h-10 w-10 rounded-xl"
+                      />
 
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
                         {event.teamMembers?.length ||
