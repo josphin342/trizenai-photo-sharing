@@ -1,4 +1,9 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import api from "../services/api";
 
 const AuthContext = createContext(null);
@@ -8,38 +13,45 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadUser = async () => {
-      const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
+    const savedUser = localStorage.getItem("user");
 
-      if (!token) {
-        setLoading(false);
-        return;
-      }
-
+    if (token && savedUser) {
       try {
-        const response = await api.get("/auth/me");
-        setUser(response.data.user);
+        setUser(JSON.parse(savedUser));
       } catch (error) {
-        console.error("Failed to restore session:", error);
+        console.error(
+          "Failed to restore saved user:",
+          error
+        );
+
+        localStorage.removeItem("user");
         localStorage.removeItem("token");
         setUser(null);
-      } finally {
-        setLoading(false);
       }
-    };
+    }
 
-    loadUser();
+    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
-    const response = await api.post("/auth/login", {
-      email,
-      password,
-    });
+
+    const response = await api.post(
+      "/auth/login",
+      {
+        email,
+        password,
+      }
+    );
 
     const { token, user } = response.data;
 
     localStorage.setItem("token", token);
+    localStorage.setItem(
+      "user",
+      JSON.stringify(user)
+    );
+
     setUser(user);
 
     return user;
@@ -47,6 +59,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setUser(null);
   };
 
@@ -65,14 +78,14 @@ export const AuthProvider = ({ children }) => {
 };
 
 // eslint-disable-next-line react-refresh/only-export-components
-
 export const useAuth = () => {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error("useAuth must be used inside AuthProvider");
+    throw new Error(
+      "useAuth must be used inside AuthProvider"
+    );
   }
 
   return context;
 };
-
