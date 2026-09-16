@@ -174,27 +174,26 @@ const TeamDashboard = () => {
         {!selectedEvent && (
           <>
             {/* Header */}
-            <div className="mb-8 flex flex-col gap-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <div className="mb-3 inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                  Team Workspace
-                </div>
+            <header className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+      Team Member Dashboard
+    </h1>
 
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
-                  Team Member Dashboard
-                </h1>
+    <p className="mt-1 text-sm text-slate-500">
+      Welcome, {user?.name}. View your assigned events
+      and upload photos for each event.
+    </p>
+  </div>
 
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
-                  View your assigned photography events
-                  and upload photos for each event.
-                </p>
-              </div>
-               <button
-                type="button"
-                onClick={logout}
-                className="w-fit rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
-                Logout
-               </button>
+  <button
+    type="button"
+    onClick={logout}
+    className="w-fit rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+  >
+    Logout
+  </button>
+
 
               <div className="flex w-fit items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
                 <div>
@@ -207,7 +206,7 @@ const TeamDashboard = () => {
                   </p>
                 </div>
               </div>
-            </div>
+           </header>
 
             {error && (
               <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
