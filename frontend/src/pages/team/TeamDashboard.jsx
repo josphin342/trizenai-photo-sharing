@@ -1,7 +1,9 @@
+import { useAuth } from "../../context/AuthContext";
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 
 const TeamDashboard = () => {
+  const { user, logout } = useAuth();
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -187,6 +189,12 @@ const TeamDashboard = () => {
                   and upload photos for each event.
                 </p>
               </div>
+               <button
+                type="button"
+                onClick={logout}
+                className="w-fit rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">
+                Logout
+               </button>
 
               <div className="flex w-fit items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
                 <div>
