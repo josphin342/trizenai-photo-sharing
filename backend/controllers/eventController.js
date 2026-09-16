@@ -87,18 +87,15 @@ const addTeamMember = async (req, res) => {
     const { name, email, password } = req.body;
 
     // Validate required fields
-    if (!name || !email || !password) {
+    if (!name || !email) {
       return res.status(400).json({
         success: false,
-        message:
-          "Name, email and password are required",
+        message: "Name and email are required",
       });
     }
 
     const normalizedName = String(name).trim();
-    const normalizedEmail = String(email)
-      .trim()
-      .toLowerCase();
+    const normalizedEmail = String(email).trim().toLowerCase();
 
     // Validate name
     if (
@@ -107,8 +104,7 @@ const addTeamMember = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message:
-          "Name must be between 2 and 50 characters",
+        message: "Name must be between 2 and 50 characters",
       });
     }
 
@@ -116,17 +112,15 @@ const addTeamMember = async (req, res) => {
     if (!emailPattern.test(normalizedEmail)) {
       return res.status(400).json({
         success: false,
-        message:
-          "Please provide a valid email address",
+        message: "Please provide a valid email address",
       });
     }
 
-    // Validate password
-    if (String(password).length < 8) {
+    // Validate password only when creating a new user
+    if (password && String(password).length < 8) {
       return res.status(400).json({
         success: false,
-        message:
-          "Password must be at least 8 characters",
+        message: "Password must be at least 8 characters",
       });
     }
 
@@ -152,16 +146,84 @@ const addTeamMember = async (req, res) => {
       });
     }
 
-    // Check if email already exists
-    const existingUser = await User.findOne({
+    // Check if user already exists
+    let user = await User.findOne({
       email: normalizedEmail,
     });
 
-    if (existingUser) {
-      return res.status(409).json({
+    // =====================================================
+    // EXISTING USER
+    // =====================================================
+    if (user) {
+      // Existing user must be a Team Member
+      if (user.role !== "TEAM_MEMBER") {
+        return res.status(400).json({
+          success: false,
+          message:
+            "This email belongs to an Admin and cannot be assigned as a Team Member",
+        });
+      }
+
+      // Check if already assigned to this event
+      const alreadyAssigned = event.teamMembers.some(
+        (memberId) =>
+          memberId.toString() === user._id.toString()
+      );
+
+      if (alreadyAssigned) {
+        return res.status(409).json({
+          success: false,
+          message:
+            "This Team Member is already assigned to this event",
+        });
+      }
+
+      // Add event to user's assignedEvents
+      const alreadyInAssignedEvents =
+        user.assignedEvents.some(
+          (assignedEventId) =>
+            assignedEventId.toString() ===
+            event._id.toString()
+        );
+
+      if (!alreadyInAssignedEvents) {
+        user.assignedEvents.push(event._id);
+      }
+
+      // Add user to event's teamMembers
+      event.teamMembers.push(user._id);
+
+      await user.save();
+      await event.save();
+
+      return res.status(200).json({
+        success: true,
+        message:
+          "Existing Team Member assigned successfully",
+        existingUser: true,
+        teamMember: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        event: {
+          id: event._id,
+          name: event.name,
+        },
+      });
+    }
+
+    // =====================================================
+    // NEW USER
+    // =====================================================
+
+    // Password is required for a new Team Member
+    if (!password) {
+      return res.status(400).json({
         success: false,
         message:
-          "A user with this email already exists",
+          "Password is required when creating a new Team Member",
       });
     }
 
@@ -172,7 +234,7 @@ const addTeamMember = async (req, res) => {
     );
 
     // Create Team Member
-    const teamMember = await User.create({
+    user = await User.create({
       name: normalizedName,
       email: normalizedEmail,
       password: hashedPassword,
@@ -181,17 +243,19 @@ const addTeamMember = async (req, res) => {
     });
 
     // Add Team Member to Event
-    event.teamMembers.push(teamMember._id);
+    event.teamMembers.push(user._id);
     await event.save();
 
     return res.status(201).json({
       success: true,
-      message: "Team Member added successfully",
+      message:
+        "Team Member created and assigned successfully",
+      existingUser: false,
       teamMember: {
-        id: teamMember._id,
-        name: teamMember.name,
-        email: teamMember.email,
-        role: teamMember.role,
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
       },
       event: {
         id: event._id,

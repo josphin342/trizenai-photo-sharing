@@ -71,8 +71,7 @@ const AddTeamMember = ({
         </h3>
 
         <p className="mt-1 text-xs leading-5 text-slate-500">
-          Create a team member account and assign
-          them to this event.
+          Create a new team member or assign an existing team member to this event.
         </p>
       </div>
 
@@ -127,6 +126,11 @@ const AddTeamMember = ({
           >
             Temporary Password
           </label>
+
+          <p className="text-sm text-slate-500 mt-1">
+            Required only when creating a new team member. Leave blank when assigning
+            an existing team member.
+          </p>
 
           <input
             id={`member-password-${eventId}`}
