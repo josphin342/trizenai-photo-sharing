@@ -94,6 +94,7 @@ Customer
   v
 Published Photo Gallery
 
+
 Technology Stack
 Frontend
 
@@ -667,3 +668,38 @@ I intentionally left these as placeholders:
 <ADD_DEMO_TEAM_MEMBER_PASSWORD>
 <ADD_DEMO_GALLERY_URL>
 <ADD_DEMO_GALLERY_PIN>
+
+
+---
+
+## Demo Credentials
+
+### Admin
+
+Email: `admin@trizenai.com`  
+Password: `Admin@12345`
+
+### Team Member
+
+Email: `john@trizenai.com`  
+Password: `John@12345`
+
+### Demo Gallery
+
+Gallery URL:
+
+https://trizenai-photo-sharing-three.vercel.app/gallery/ff7c60a8914357d4334fa91b718f9fbad1191b1b6feea51e84bfc6e7ad7f5762
+
+Gallery PIN: `123456`
+
+---
+
+## Production Deployment
+
+### Frontend
+
+https://trizenai-photo-sharing-three.vercel.app
+
+### Backend API
+
+https://trizenai-photo-sharing-1.onrender.com
