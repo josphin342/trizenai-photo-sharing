@@ -174,39 +174,43 @@ const TeamDashboard = () => {
         {!selectedEvent && (
           <>
             {/* Header */}
-            <header className="mb-8 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-  <div>
-    <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-      Team Member Dashboard
-    </h1>
+   <header className="mb-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+  <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
 
-    <p className="mt-1 text-sm text-slate-500">
-      Welcome, {user?.name}. View your assigned events
-      and upload photos for each event.
-    </p>
+    <div>
+      <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
+        Team Member Dashboard
+      </h1>
+
+      <p className="mt-1 text-sm text-slate-500">
+        Welcome, {user?.name}. View your assigned events
+        and upload photos for each event.
+      </p>
+    </div>
+
+    <div className="flex flex-col items-end gap-4">
+      <button
+        type="button"
+        onClick={logout}
+        className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+      >
+        Logout
+      </button>
+
+      <div className="w-fit rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
+        <p className="text-2xl font-bold text-slate-900">
+          {events.length}
+        </p>
+
+        <p className="text-xs font-medium text-slate-500">
+          Assigned Event
+          {events.length !== 1 ? "s" : ""}
+        </p>
+      </div>
+    </div>
+
   </div>
-
-  <button
-    type="button"
-    onClick={logout}
-    className="w-fit rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-  >
-    Logout
-  </button>
-
-
-              <div className="flex w-fit items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-5 py-4">
-                <div>
-                  <p className="text-2xl font-bold text-slate-900">
-                    {events.length}
-                  </p>
-                  <p className="text-xs font-medium text-slate-500">
-                    Assigned Event
-                    {events.length !== 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-           </header>
+</header>
 
             {error && (
               <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4">
