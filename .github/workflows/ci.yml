@@ -9,9 +9,13 @@ on:
       - main
 
 jobs:
-  backend-test:
+   backend-test:
     name: Backend Tests
     runs-on: ubuntu-latest
+
+    env:
+      JWT_SECRET: ci-test-secret
+      JWT_EXPIRES_IN: 1d
 
     steps:
       - name: Checkout repository
