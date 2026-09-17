@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-   backend-test:
+  backend-test:
     name: Backend Tests
     runs-on: ubuntu-latest
 
